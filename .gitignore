@@ -1,3 +1,7 @@
+*.csv
+data/airflow-db-data
+data/dwh-data
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -135,9 +139,13 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+.vscode
 .env
 .envrc
 .venv
+logs
+dwh_data
+airflow_db_data
 env/
 venv/
 ENV/
