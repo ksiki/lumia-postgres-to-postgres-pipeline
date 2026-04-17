@@ -1,0 +1,27 @@
+[project]
+name = "api-dashboard"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "ksiki",email = "j.kolyasha@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "python-decouple==3.8",
+    "geonamescache>=2.0.0",
+    "pandas>=2.2.3",
+    "psycopg2-binary>=2.9.10",
+    "sqlalchemy>=1.4.36,<2.0",
+    "paramiko>=3.4.0",
+    "apache-airflow==2.10.5",
+    "apache-airflow-providers-postgres>=5.13.0",
+    "apache-airflow-providers-ssh>=3.13.0"
+]
+
+[tool.poetry]
+package-mode = false 
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
