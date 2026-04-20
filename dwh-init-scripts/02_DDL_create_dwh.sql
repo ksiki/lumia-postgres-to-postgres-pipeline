@@ -27,6 +27,7 @@ create table if not exists dwh.d_city(
 create table if not exists dwh.d_product(
     str_id varchar(100),
     name varchar(100),
+    category varchar(100),
     constraint d_product_pk primary key (str_id)
 );
 
@@ -40,6 +41,23 @@ create table if not exists dwh.d_user(
     foreign key (registration_date_id) references dwh.d_calendar (id)
 );
 
+create table if not exists dwh.f_user_analytics(
+    user_id bigint not null,
+    first_purchases_date_id integer not null,
+    last_purchases_date_id integer not null,
+    total_purchases bigint not null,
+    service_purchases bigint not null,
+    sub_purchases bigint not null,
+    mtx_purchases bigint not null,
+    total_revenue bigint not null,
+    sub_revenue bigint not null,
+    mtx_revenue bigint not null,
+    constraint f_user_analytics_user_id_unique unique (user_id),
+    foreign key (user_id) references dwh.d_user (tg_id),
+    foreign key (first_purchases_date_id) references dwh.d_calendar (id),
+    foreign key (last_purchases_date_id) references dwh.d_calendar (id)
+);
+
 create table if not exists dwh.f_sales(
     date_id integer not null,
     hour smallint not null,
@@ -49,7 +67,7 @@ create table if not exists dwh.f_sales(
     count_sales_without_sub bigint not null,
     count_refunded bigint not null,
     total_revenue bigint not null,
-    constraint f_sales_date_hour_unique unique (date_id, hour, prod_id),
+    constraint f_sales_date_hour_prod_unique unique (date_id, hour, prod_id),
     foreign key (date_id) references dwh.d_calendar (id),
     foreign key (prod_id) references dwh.d_product (str_id)
 );
