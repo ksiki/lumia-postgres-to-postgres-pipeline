@@ -8,6 +8,7 @@ create table if not exists staging.transaction (
     registration_date date,
     prod_str_id varchar(100),
     prod_name varchar(100),
+    prod_category varchar(100),
     transaction_date date,
     transaction_time time,
     stars_price_original smallint,

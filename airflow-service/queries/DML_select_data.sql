@@ -16,6 +16,7 @@ select
     uad.reg_date as registration_date,
     dp.str_id as prod_str_id,
     dp.name as prod_name,
+    dp.category as prod_category,
     dc.date as transaction_date,
     ft.time as transaction_time,
     ft.stars_price_original as stars_price_original,

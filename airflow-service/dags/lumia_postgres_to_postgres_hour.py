@@ -95,9 +95,9 @@ def load_data_to_staging(ti, pg_schema: str, pg_table: str) -> None:
     df = df.rename(columns={'user_id': 'tg_user_id'})
     target_fields = [
         'tg_user_id', 'sex', 'residence_city', 'residence_country',
-        'registration_date', 'prod_str_id', 'prod_name', 'transaction_date',
-        'transaction_time', 'stars_price_original', 'stars_price_actual',
-        'is_subscription_active', 'refunded'
+        'registration_date', 'prod_str_id', 'prod_name', 'prod_category', 
+        'transaction_date', 'transaction_time', 'stars_price_original',
+        'stars_price_actual', 'is_subscription_active', 'refunded'
     ]
     existing_columns = [col for col in target_fields if col in df.columns]
     df = df[existing_columns]
@@ -213,6 +213,13 @@ with DAG(
         dag=dag
     )
     
+    update_f_user_analytics_task = SQLExecuteQueryOperator(
+        task_id="update_f_user_analytics",
+        conn_id=ANALYTIC_POSTGRES_CONN_ID,
+        sql="queries/DML_f_user_analytics.sql",
+        dag=dag
+    )
+
     update_f_sales_task = SQLExecuteQueryOperator(
         task_id="update_f_sales",
         conn_id=ANALYTIC_POSTGRES_CONN_ID,
@@ -231,5 +238,6 @@ with DAG(
         >> update_d_city_task
         >> update_d_product_task
         >> update_d_user_task
+        >> update_f_user_analytics_task
         >> update_f_sales_task
     )

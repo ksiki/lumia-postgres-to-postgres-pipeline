@@ -1,7 +1,3 @@
-delete from dwh.f_sales 
-where date_id = (select id from dwh.d_calendar where fact_date = '{{ ds }}'::date) 
-    and hour = {{ logical_date.strftime('%H') | int }};
-
 insert into dwh.f_sales (
     date_id, 
     hour, 
@@ -27,4 +23,9 @@ join dwh.d_product dp on st.prod_str_id = dp.str_id
 where dc.fact_date = '{{ ds }}'::date
     and extract(hour from st.transaction_time) = {{ logical_date.strftime('%H') | int }}
 group by dc.id, extract(hour from st.transaction_time), dp.str_id
-on conflict (date_id, hour, prod_id) do nothing;
+on conflict (date_id, hour, prod_id) do update set
+    total_sales = excluded.total_sales,
+    count_sales_with_sub = excluded.count_sales_with_sub,
+    count_sales_without_sub = excluded.count_sales_without_sub,
+    count_refunded = excluded.count_refunded,
+    total_revenue = excluded.total_revenue;
