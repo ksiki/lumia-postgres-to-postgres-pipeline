@@ -1,5 +1,5 @@
-from typing import Final
-from fastapi import APIRouter, Depends
+from typing import Annotated, Final
+from fastapi import APIRouter, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config import PREFIXES
@@ -23,7 +23,7 @@ async def get_users(
 
 @ROUTER.get("/{user_id}/", response_model=UserAnalytics)
 async def get_user_analytics(
-    user_id: int,
+    user_id: Annotated[int, Path(gt=0)],
     session: AsyncSession = Depends(DATABASE_HELPER.session_dependency)
 ):
     return await crud.get_user_analytics(session=session, user_id=user_id)

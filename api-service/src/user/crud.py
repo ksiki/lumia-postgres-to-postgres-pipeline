@@ -4,7 +4,13 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.user.schemas import User, UserAnalytics
-from src.core.models import CalendarORM, CityORM, CountryORM, UserAnalyticsORM, UserORM
+from src.core.models import (
+    CalendarORM, 
+    CityORM, 
+    CountryORM, 
+    UserAnalyticsORM, 
+    UserORM
+)
 
 
 async def get_users(session: AsyncSession) -> list[User]:

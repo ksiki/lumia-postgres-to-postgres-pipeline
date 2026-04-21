@@ -1,10 +1,8 @@
 from typing import Final
-from asyncio import current_task
 from sqlalchemy.ext.asyncio import (
     AsyncSession, 
     create_async_engine, 
-    async_sessionmaker, 
-    async_scoped_session 
+    async_sessionmaker
 )
 
 from src.core.config import SETTINGS
@@ -12,7 +10,10 @@ from src.core.config import SETTINGS
 
 class DatabaseHelper:
     def __init__(self, url: str, echo: bool = False):
-        self.__engine = create_async_engine(url=url, echo=echo)
+        self.__engine = create_async_engine(
+            url=url, 
+            echo=echo
+        )
         self.session_factory = async_sessionmaker(
             bind=self.__engine,
             autoflush=False,
