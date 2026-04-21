@@ -8,18 +8,7 @@ class Settings(BaseSettings):
     db_url: str
 
 
-class Prefixes(BaseSettings):
-    user: str
-    sales: str
-
-
 SETTINGS: Final[Settings] = Settings(
     debug=config("DEBUG"),
     db_url=config("DB_URL")
-)
-
-
-PREFIXES: Final[Prefixes] = Prefixes(
-    user="/user",
-    sales="/sales"
 )

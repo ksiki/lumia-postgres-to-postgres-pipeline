@@ -2,16 +2,16 @@ from typing import Annotated, Final
 from fastapi import APIRouter, Depends, Path, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.config import PREFIXES
 from src.core.db_helper import DATABASE_HELPER
-from src.user import crud
-from src.user.schemas import User, UserAnalytics, UserFilters
-
-
-ROUTER: Final[APIRouter] = APIRouter(
-    prefix=PREFIXES.user,
-    tags=["User"]
+from src.api.v1.crud import users_crud as crud
+from src.api.v1.schemas.users_schemas import (
+    User, 
+    UserAnalytics, 
+    UserFilters
 )
+
+
+ROUTER: Final[APIRouter] = APIRouter()
 
 
 @ROUTER.get("/", response_model=list[User])

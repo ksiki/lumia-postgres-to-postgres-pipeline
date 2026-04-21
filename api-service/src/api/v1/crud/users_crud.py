@@ -3,12 +3,12 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.user.schemas import (
+from src.api.v1.schemas.users_schemas import (
     User, 
     UserAnalytics, 
     UserFilters
 )
-from src.core.models import (
+from src.models.models import (
     CalendarORM, 
     CityORM, 
     CountryORM, 
