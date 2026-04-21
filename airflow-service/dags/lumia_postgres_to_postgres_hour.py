@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import geonamescache
@@ -9,7 +10,8 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.ssh.hooks.ssh import SSHHook
 from airflow.providers.postgres.hooks.postgres import PostgresHook
-from airflow.operators.python import PythonOperator
+from airflow.operators.python import BranchPythonOperator, PythonOperator
+from airflow.providers.http.operators.http import HttpOperator
 from airflow.operators.empty import EmptyOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from sqlalchemy import create_engine, text
@@ -20,6 +22,7 @@ LOG: Final[logging.Logger] = logging.getLogger(__name__)
 LUMIA_SSH_CONN_ID: Final[str] = "lumia_ssh"
 LUMIA_POSTGRES_CONN_ID: Final[str] = "lumia_postgres"
 ANALYTIC_POSTGRES_CONN_ID: Final[str] = "analytic_postgres"
+FASTAPI_CONN_ID: Final[str] = "fastapi_http"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 PATH_TO_RAW_DATA: Final[Path] = BASE_DIR / "raw_data"
@@ -122,6 +125,12 @@ def load_data_to_staging(ti, pg_schema: str, pg_table: str) -> None:
             LOG.info(f'Temp file deleted: {file_name}')
 
 
+def check_maintenance(logical_date) -> str:
+    if logical_date.weekday() == 6 and logical_date.hour == 0:
+        return 'notify_api_start'
+    return 'skip_maintenance'
+
+
 args = {
     "owner": "analytics",
     'email_on_failure': False,
@@ -142,9 +151,9 @@ with DAG(
     schedule="0 * * * *",
     template_searchpath=[BASE_DIR],
 ) as dag:
-    
-    start_task = EmptyOperator(
-        task_id="start",
+
+    start_etl_task = EmptyOperator(
+        task_id="start_etl",
         dag=dag
     )
 
@@ -227,8 +236,56 @@ with DAG(
         dag=dag
     )
 
+    branch_task = BranchPythonOperator(
+        task_id="branch_task",
+        python_callable=check_maintenance,
+        dag=dag
+    )
+
+    notify_api_start_task = HttpOperator(
+        task_id="notify_api_start",
+        http_conn_id=FASTAPI_CONN_ID,
+        endpoint="/maintenance/status",
+        method="POST",
+        data=json.dumps(
+            {"action": "start"}
+        ),
+        headers={
+            "Content-Type": "application/json"
+        },
+        dag=dag
+    )
+
+    run_vacuum_task = SQLExecuteQueryOperator(
+        task_id="run_vacuum",
+        conn_id=ANALYTIC_POSTGRES_CONN_ID,
+        sql="queries/DML_vacuum.sql",
+        autocommit=True,
+        dag=dag
+    )
+
+    notify_api_stop_task = HttpOperator(
+        task_id="notify_api_stop",
+        http_conn_id=FASTAPI_CONN_ID,
+        endpoint="/maintenance/status",
+        method="POST",
+        data=json.dumps(
+            {"action": "stop"}
+        ),
+        headers={
+            "Content-Type": "application/json"
+        },
+        dag=dag
+    )
+
+    skip_maintenance_task = EmptyOperator(
+        task_id='skip_maintenance',
+        dag=dag
+    )
+
+
     (
-        start_task
+        start_etl_task
         >> extract_data_task
         >> encriment_countries_task
         >> load_data_to_staging_task
@@ -240,4 +297,14 @@ with DAG(
         >> update_d_user_task
         >> update_f_user_analytics_task
         >> update_f_sales_task
+        >> branch_task
+    )
+    (
+        branch_task 
+        >> [notify_api_start_task, skip_maintenance_task]
+    )
+    (
+        notify_api_start_task
+        >> run_vacuum_task 
+        >> notify_api_stop_task
     )
