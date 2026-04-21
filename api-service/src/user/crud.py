@@ -3,7 +3,11 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.user.schemas import User, UserAnalytics
+from src.user.schemas import (
+    User, 
+    UserAnalytics, 
+    UserFilters
+)
 from src.core.models import (
     CalendarORM, 
     CityORM, 
@@ -13,7 +17,7 @@ from src.core.models import (
 )
 
 
-async def get_users(session: AsyncSession) -> list[User]:
+async def get_users(session: AsyncSession, filters: UserFilters) -> list[User]:
     stmt = (
         select(
             UserORM.tg_id,
@@ -26,6 +30,14 @@ async def get_users(session: AsyncSession) -> list[User]:
         .join(CountryORM, CityORM.country_id == CountryORM.id)
         .join(CalendarORM, UserORM.registration_date_id == CalendarORM.id)
     )
+
+    if filters.country:
+        stmt = stmt.where(CountryORM.name == filters.country)
+    if filters.city:
+        stmt = stmt.where(CityORM.name == filters.city)
+    if filters.sex:
+        stmt = stmt.where(UserORM.sex == filters.sex)
+
     result: Result = await session.execute(stmt)
     users = result.mappings().all()
     return [User.model_validate(user) for user in users]

@@ -1,6 +1,7 @@
 from datetime import date
+from typing import Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class User(BaseModel):
@@ -23,3 +24,9 @@ class UserAnalytics(User):
     total_revenue: int
     sub_revenue: int
     mtx_revenue: int
+
+
+class UserFilters(BaseModel):
+    country: Optional[str] = Field(None)
+    city: Optional[str] = Field(None)
+    sex: Optional[str] = Field(None, description="Парень/Девушка")
