@@ -3,6 +3,7 @@ import logging
 import os
 import geonamescache
 import pandas
+from decouple import config
 from typing import Final
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -139,6 +140,7 @@ args = {
 }
 date = "{{ ds }}"
 hour = "{{ logical_date.strftime('%H') }}"
+api_key = config("X_API_KEY")
 
 with DAG(
     "lumia_postgres_to_postgres_hour.py",
@@ -247,9 +249,10 @@ with DAG(
         http_conn_id=FASTAPI_CONN_ID,
         endpoint="/maintenance/status",
         method="POST",
-        data=json.dumps(
-            {"action": "start"}
-        ),
+        data=json.dumps({
+            "action": "start",
+            "x_api_key": api_key
+        }),
         headers={
             "Content-Type": "application/json"
         },
@@ -269,9 +272,10 @@ with DAG(
         http_conn_id=FASTAPI_CONN_ID,
         endpoint="/maintenance/status",
         method="POST",
-        data=json.dumps(
-            {"action": "stop"}
-        ),
+        data=json.dumps({
+            "action": "stop",
+            "x_api_key": api_key
+        }),
         headers={
             "Content-Type": "application/json"
         },
