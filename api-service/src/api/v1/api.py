@@ -4,10 +4,10 @@ from fastapi import APIRouter
 
 from src.api.v1 import users
 from src.api.v1 import sales
-from src.api.v1.config import PREFIXES
+from src.api.v1.config import prefixes
 
 
-API_ROUTER: Final[APIRouter] = APIRouter(prefix=PREFIXES.version_prefix)
+api_router: Final[APIRouter] = APIRouter(prefix=prefixes.api_version)
 
-API_ROUTER.include_router(users.ROUTER, prefix=PREFIXES.users, tags=[f"{PREFIXES.version_prefix}{PREFIXES.users}"])
-API_ROUTER.include_router(sales.ROUTER, prefix=PREFIXES.sales, tags=[f"{PREFIXES.version_prefix}{PREFIXES.sales}"])
+api_router.include_router(users.router, prefix=prefixes.users, tags=[f"{prefixes.api_version}{prefixes.users}"])
+api_router.include_router(sales.router, prefix=prefixes.sales, tags=[f"{prefixes.api_version}{prefixes.sales}"])

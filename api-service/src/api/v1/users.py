@@ -2,7 +2,7 @@ from typing import Annotated, Final
 from fastapi import APIRouter, Depends, Path, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.db_helper import DATABASE_HELPER
+from src.core.db_helper import database_helper
 from src.api.v1.crud import users_crud as crud
 from src.api.v1.schemas.users_schemas import (
     User, 
@@ -11,13 +11,13 @@ from src.api.v1.schemas.users_schemas import (
 )
 
 
-ROUTER: Final[APIRouter] = APIRouter()
+router: Final[APIRouter] = APIRouter()
 
 
-@ROUTER.get("/", response_model=list[User])
+@router.get("/", response_model=list[User])
 async def get_users(
     filters: Annotated[UserFilters, Query()],
-    session: AsyncSession = Depends(DATABASE_HELPER.session_dependency)
+    session: AsyncSession = Depends(database_helper.session_dependency)
 ):
     return await crud.get_users(
         session=session, 
@@ -25,10 +25,10 @@ async def get_users(
     )
 
 
-@ROUTER.get("/{user_id}/", response_model=UserAnalytics)
+@router.get("/{user_id}/", response_model=UserAnalytics)
 async def get_user_analytics(
     user_id: Annotated[int, Path(gt=0)],
-    session: AsyncSession = Depends(DATABASE_HELPER.session_dependency)
+    session: AsyncSession = Depends(database_helper.session_dependency)
 ):
     return await crud.get_user_analytics(
         session=session, 

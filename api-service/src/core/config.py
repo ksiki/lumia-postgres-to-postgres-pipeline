@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     maintenance_prefix: str
 
 
-SETTINGS: Final[Settings] = Settings(
+settings: Final[Settings] = Settings(
     debug=config("DEBUG"),
     db_url=config("DB_URL"),
     x_api_key=config("X_API_KEY"),

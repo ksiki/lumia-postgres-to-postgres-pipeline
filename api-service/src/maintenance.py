@@ -7,11 +7,11 @@ from fastapi.responses import JSONResponse
 from src.core.dependencies import verify_api_key
 
 
-ROUTER: Final[APIRouter] = APIRouter()
+router: Final[APIRouter] = APIRouter()
 LOG: Final[logging.Logger] = logging.getLogger(__name__)
 
 
-@ROUTER.post("/status")
+@router.post("/status")
 async def toggle_maintenance(
     request: Request,
     action: str = Body(embed=True),
