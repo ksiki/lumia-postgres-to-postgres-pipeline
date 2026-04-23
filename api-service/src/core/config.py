@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     maintenance_prefix: str
 
 
+class Prefixes(BaseSettings):
+    api_version: str
+
+
 settings: Final[Settings] = Settings(
     debug=config("DEBUG"),
     db_url=config("DB_URL"),
